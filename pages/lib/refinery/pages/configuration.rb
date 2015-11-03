@@ -16,7 +16,7 @@ module Refinery
     self.marketable_urls = true
     self.approximate_ascii = false
     self.strip_non_ascii = false
-    self.default_parts = ["Body", "Side Body"]
+    self.default_parts = [{ title: "Body", slug: "body" }, { title: "Side Body", slug: "side_body" }]
     self.use_custom_slugs = false
     self.scope_slug_by_parent = true
     self.cache_pages_backend = false
@@ -25,6 +25,13 @@ module Refinery
     class << self
       def layout_template_whitelist
         Array(config.layout_template_whitelist).map(&:to_s)
+      end
+
+      def default_parts
+        if config.default_parts.all? { |v| v.is_a? String }
+          Refinery.deprecate('Changes in Refinery::Pages.default_parts config', when: '3.2')
+          config.default_parts.map{|v| {title: v, slug: v.downcase.gsub(" ", "_")} }
+        end
       end
     end
     self.use_layout_templates = false
